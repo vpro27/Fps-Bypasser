@@ -21,10 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Android NDK
-        uses: nttld/setup-ndk@v1
+      - name: Setup Geode CLI & SDK
+        uses: geode-sdk/cli-setup@v2
         with:
-          ndk-version: r25c
+          # This installs the Geode SDK files so CMake can find "geodeConfig.cmake"
+          sdk: true
 
       - name: Build Mod
         uses: geode-sdk/build-geode-mod@main
