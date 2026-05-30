@@ -8,23 +8,37 @@ on:
 
 jobs:
   build:
-    name: Build Mod
+    name: Build Android
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
         config:
-          - target: Windows
           - target: Android32
+            arch: armv7-linux-androideabi
           - target: Android64
+            arch: aarch64-linux-android
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Geode CLI
+        uses: geode-sdk/setup-geode@v1
+
+      - name: Install Geode SDK Binaries
+        run: |
+          geode sdk install-binaries
+
+      - name: Configure CMake
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DGEODE_TARGET=${{ matrix.config.target }} \
+            -DCMAKE_PREFIX_PATH="$HOME/.geode/sdk" \
+            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=${{ matrix.config.target == 'Android32' && 'armeabi-v7a' || 'arm64-v8a' }}
+
       - name: Build Mod
-        uses: geode-sdk/build-geode-mod@main
-        with:
-          target: ${{ matrix.config.target }}
-          combine: true
-          
+        run: cmake --build build --config Release
+        
