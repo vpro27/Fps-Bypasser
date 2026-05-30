@@ -23,8 +23,8 @@ jobs:
 
       - name: Install Geode CLI and SDK
         run: |
-          # FORCE THE DIRECTORIES TO EXIST FIRST SO GEODE CANNOT COMPLAIN
-          mkdir -p $HOME/.geode/sdk
+          # Create the parent directory only, so the target SDK path is totally clear
+          mkdir -p $HOME/.geode
           mkdir -p $GITHUB_WORKSPACE/geode-bin
           
           wget https://github.com/geode-sdk/cli/releases/download/v3.7.4/geode-cli-v3.7.4-linux.zip -O geode-cli.zip
@@ -32,16 +32,19 @@ jobs:
           chmod +x $GITHUB_WORKSPACE/geode-bin/geode
           echo "$GITHUB_WORKSPACE/geode-bin" >> $GITHUB_PATH
           
-          # Initialize the default profile
+          # Initialize the profile
           $GITHUB_WORKSPACE/geode-bin/geode profile add --name default $HOME/.geode
           
-          # 1. Download and install the core SDK structure
-          $GITHUB_WORKSPACE/geode-bin/geode sdk install $HOME/.geode/sdk
+          # 1. Download and install to a fresh, non-existent target path
+          $GITHUB_WORKSPACE/geode-bin/geode sdk install $HOME/.geode/sdk-install
           
-          # 2. Link the path inside the CLI config
+          # 2. Safely rename the fully installed folder so CMake can find it
+          mv $HOME/.geode/sdk-install $HOME/.geode/sdk
+          
+          # 3. Link the final path in the CLI config
           $GITHUB_WORKSPACE/geode-bin/geode sdk set-path $HOME/.geode/sdk
           
-          # 3. Pull the mobile binaries
+          # 4. Pull the mobile binaries
           $GITHUB_WORKSPACE/geode-bin/geode sdk install-binaries
 
       - name: Configure CMake
