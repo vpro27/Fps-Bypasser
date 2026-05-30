@@ -16,19 +16,18 @@ jobs:
       matrix:
         config:
           - target: Android32
-            arch: armv7-linux-androideabi
           - target: Android64
-            arch: aarch64-linux-android
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Geode CLI
-        uses: geode-sdk/setup-geode@v1
-
-      - name: Install Geode SDK Binaries
+      - name: Install Geode CLI Manually
         run: |
-          geode sdk install-binaries
+          curl -sL https://github.com/geode-sdk/cli/releases/latest/download/geode-cli-linux.zip -o geode-cli.zip
+          unzip geode-cli.zip -d bin
+          chmod +x bin/geode
+          echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
+          ./bin/geode sdk install-binaries
 
       - name: Configure CMake
         run: |
