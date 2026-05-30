@@ -1,17 +1,47 @@
-cmake_minimum_required(VERSION 3.25)
-project(fpsbypasser)
+name: Build Mod
 
-# Tell CMake exactly where our custom downloaded SDK folder lives
-set(GEODE_SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/geode-sdk-source")
-list(APPEND CMAKE_PREFIX_PATH "${GEODE_SDK_DIR}")
-list(APPEND CMAKE_MODULE_PATH "${GEODE_SDK_DIR}/loader/cmake")
-set(Geode_DIR "${GEODE_SDK_DIR}/loader/cmake")
+on:
+  push:
+    branches:
+      - "**"
+  workflow_dispatch:
 
-find_package(Geode REQUIRED)
+jobs:
+  build:
+    name: Build Android
+    runs-on: ubuntu-latest
 
-add_geode_mod(com.developer.fpsbypasser
-    VERSION 1.0.0
-    ANDROID
-)
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - target: Android32
+            abi: armeabi-v7a
+          - target: Android64
+            abi: arm64-v8a
 
-target_sources(com.developer.fpsbypasser PRIVATE main.cpp)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Geode SDK Source
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/geode-sdk
+          
+          # Download the source code repository directly
+          wget https://github.com/geode-sdk/geode/archive/refs/heads/main.zip -O sdk.zip
+          unzip sdk.zip
+          
+          # Move the raw contents directly into our targeted folder
+          cp -r geode-main/* $GITHUB_WORKSPACE/geode-sdk/
+
+      - name: Configure CMake
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DGEODE_TARGET=${{ matrix.config.target }} \
+            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=${{ matrix.config.abi }}
+
+      - name: Build Mod
+        run: cmake --build build --config Release
+        
