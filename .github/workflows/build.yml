@@ -8,13 +8,14 @@ on:
 
 jobs:
   build:
-    name: Build Android
+    name: Build Mod
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
         config:
+          - target: Windows
           - target: Android32
           - target: Android64
 
@@ -25,5 +26,5 @@ jobs:
         uses: geode-sdk/build-geode-mod@main
         with:
           target: ${{ matrix.config.target }}
-          sdk: "latest"
+          combine: true
           
