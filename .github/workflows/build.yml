@@ -1,58 +1,17 @@
-name: Build Mod
+cmake_minimum_required(VERSION 3.25)
+project(fpsbypasser)
 
-on:
-  push:
-    branches:
-      - "**"
-  workflow_dispatch:
+# Tell CMake exactly where our custom downloaded SDK folder lives
+set(GEODE_SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/geode-sdk-source")
+list(APPEND CMAKE_PREFIX_PATH "${GEODE_SDK_DIR}")
+list(APPEND CMAKE_MODULE_PATH "${GEODE_SDK_DIR}/loader/cmake")
+set(Geode_DIR "${GEODE_SDK_DIR}/loader/cmake")
 
-jobs:
-  build:
-    name: Build Android
-    runs-on: ubuntu-latest
+find_package(Geode REQUIRED)
 
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - target: Android32
-            abi: armeabi-v7a
-          - target: Android64
-            abi: arm64-v8a
+add_geode_mod(com.developer.fpsbypasser
+    VERSION 1.0.0
+    ANDROID
+)
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Geode CLI and SDK
-        run: |
-          mkdir -p $HOME/.geode
-          mkdir -p $GITHUB_WORKSPACE/geode-bin
-          
-          # Download and setup CLI
-          wget https://github.com/geode-sdk/cli/releases/download/v3.7.4/geode-cli-v3.7.4-linux.zip -O geode-cli.zip
-          unzip geode-cli.zip -d $GITHUB_WORKSPACE/geode-bin
-          chmod +x $GITHUB_WORKSPACE/geode-bin/geode
-          echo "$GITHUB_WORKSPACE/geode-bin" >> $GITHUB_PATH
-          
-          # Setup Profile and Core SDK
-          $GITHUB_WORKSPACE/geode-bin/geode profile add --name default $HOME/.geode
-          $GITHUB_WORKSPACE/geode-bin/geode sdk install $HOME/.geode/sdk-install
-          mv $HOME/.geode/sdk-install $HOME/.geode/sdk
-          $GITHUB_WORKSPACE/geode-bin/geode sdk set-path $HOME/.geode/sdk
-          
-          export GEODE_SDK="$HOME/.geode/sdk"
-          $GITHUB_WORKSPACE/geode-bin/geode sdk install-binaries
-
-      - name: Configure CMake
-        run: |
-          cmake -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DGEODE_TARGET=${{ matrix.config.target }} \
-            -DCMAKE_PREFIX_PATH="/home/runner/.geode/sdk" \
-            -DGeode_DIR="/home/runner/.geode/sdk/share/Geode/cmake" \
-            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake \
-            -DANDROID_ABI=${{ matrix.config.abi }}
-
-      - name: Build Mod
-        run: cmake --build build --config Release
-        
+target_sources(com.developer.fpsbypasser PRIVATE main.cpp)
