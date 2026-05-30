@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Geode CLI Manually
+      - name: Install Geode CLI and SDK
         run: |
           mkdir -p $GITHUB_WORKSPACE/geode-bin
           wget https://github.com/geode-sdk/cli/releases/download/v3.7.4/geode-cli-v3.7.4-linux.zip -O geode-cli.zip
@@ -29,10 +29,16 @@ jobs:
           chmod +x $GITHUB_WORKSPACE/geode-bin/geode
           echo "$GITHUB_WORKSPACE/geode-bin" >> $GITHUB_PATH
           
-          # CREATE THE PROFILE FIRST TO STOP THE FAIL ERROR
+          # Initialize the default profile
           $GITHUB_WORKSPACE/geode-bin/geode profile add --name default $HOME/.geode
           
-          # Now install the binaries into our new profile
+          # 1. Download and install the core SDK structure first
+          $GITHUB_WORKSPACE/geode-bin/geode sdk install $HOME/.geode/sdk
+          
+          # 2. Force link the path inside the CLI config manually
+          $GITHUB_WORKSPACE/geode-bin/geode sdk set-path $HOME/.geode/sdk
+          
+          # 3. Now pull the mobile binaries into our freshly made SDK folder
           $GITHUB_WORKSPACE/geode-bin/geode sdk install-binaries
 
       - name: Configure CMake
