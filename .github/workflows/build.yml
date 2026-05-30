@@ -16,16 +16,19 @@ jobs:
       matrix:
         config:
           - target: Android32
+            arch: armv7
           - target: Android64
+            arch: aarch64
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Geode SDK
-        uses: geode-sdk/setup-geode@v1
+      - name: Configure CMake
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DGEODE_TARGET=${{ matrix.config.target }}
 
-      - name: Build Mod
-        uses: geode-sdk/build-geode-mod@main
-        with:
-          target: ${{ matrix.config.target }}
-          
+      - name: Build
+        run: cmake --build build --config Release
+        
