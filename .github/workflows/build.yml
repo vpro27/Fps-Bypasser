@@ -1,9 +1,11 @@
 name: Build Geode Mod
+
 on:
   workflow_dispatch:
   push:
     branches:
       - "**"
+
 jobs:
   build:
     strategy:
@@ -16,8 +18,10 @@ jobs:
           - name: Android64
             os: ubuntu-latest
             target: Android64
+
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
+
     steps:
       - uses: actions/checkout@v4
 
