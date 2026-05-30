@@ -23,11 +23,14 @@ jobs:
 
       - name: Install Geode CLI Manually
         run: |
-          curl -sL https://github.com/geode-sdk/cli/releases/latest/download/geode-cli-linux.zip -o geode-cli.zip
-          unzip geode-cli.zip -d bin
-          chmod +x bin/geode
-          echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
-          ./bin/geode sdk install-binaries
+          # Use Geode's official bash installation script instead of guessing the URL
+          wget -qO- https://raw.githubusercontent.com/geode-sdk/cli/main/loader.sh | bash
+          
+          # Add the newly created geode directory to the GitHub path
+          echo "$HOME/.geode/bin" >> $GITHUB_PATH
+          
+          # Force the CLI to install the header files right now
+          $HOME/.geode/bin/geode sdk install-binaries
 
       - name: Configure CMake
         run: |
