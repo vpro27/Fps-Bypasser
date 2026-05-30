@@ -14,14 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup CLI
-        uses: geode-sdk/cli-setup@main
-
       - name: Build Mod
         uses: geode-sdk/build-geode-mod@main
         with:
           target: Android
-          android-config: |
-            api-level: 30
-            ndk-version: "25.2.9519653"
-            
+          
