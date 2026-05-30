@@ -42,6 +42,6 @@ jobs:
         env:
           GEODE_SDK: /home/runner/.geode/sdk
         run: |
-          # Use the CLI tool directly to build the mod for the target platform
-          geode mod build --target ${{ matrix.config.target }}
+          # Use the correct build subcommand for version 3.x
+          geode build --target ${{ matrix.config.target }}
           
