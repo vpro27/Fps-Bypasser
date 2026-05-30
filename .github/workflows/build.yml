@@ -25,14 +25,15 @@ jobs:
 
       - name: Download Geode SDK Source
         run: |
-          mkdir -p $GITHUB_WORKSPACE/geode-sdk
+          # Clean up any partial folders from previous runs
+          rm -rf geode-sdk geode-main sdk.zip
           
           # Download the source code repository directly
           wget https://github.com/geode-sdk/geode/archive/refs/heads/main.zip -O sdk.zip
           unzip sdk.zip
           
-          # Move the raw contents directly into our targeted folder
-          cp -r geode-main/* $GITHUB_WORKSPACE/geode-sdk/
+          # Rename the extracted folder directly to what CMake wants
+          mv geode-main geode-sdk
 
       - name: Configure CMake
         run: |
