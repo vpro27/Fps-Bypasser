@@ -21,13 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Geode CLI & SDK
-        uses: geode-sdk/cli-setup@main
-        with:
-          sdk: true
-
       - name: Build Mod
         uses: geode-sdk/build-geode-mod@main
         with:
           target: ${{ matrix.config.target }}
+          sdk: true
           
