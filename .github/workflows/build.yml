@@ -22,43 +22,26 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Geode CLI and SDK
-        env:
-          GEODE_SDK: ${{ github.workspace }}/../.geode/sdk
         run: |
           mkdir -p $HOME/.geode
           mkdir -p $GITHUB_WORKSPACE/geode-bin
           
+          # Download and setup CLI
           wget https://github.com/geode-sdk/cli/releases/download/v3.7.4/geode-cli-v3.7.4-linux.zip -O geode-cli.zip
           unzip geode-cli.zip -d $GITHUB_WORKSPACE/geode-bin
           chmod +x $GITHUB_WORKSPACE/geode-bin/geode
           echo "$GITHUB_WORKSPACE/geode-bin" >> $GITHUB_PATH
           
+          # Setup Profile and Core SDK
           $GITHUB_WORKSPACE/geode-bin/geode profile add --name default $HOME/.geode
           $GITHUB_WORKSPACE/geode-bin/geode sdk install $HOME/.geode/sdk-install
           mv $HOME/.geode/sdk-install $HOME/.geode/sdk
           $GITHUB_WORKSPACE/geode-bin/geode sdk set-path $HOME/.geode/sdk
-          
-          export GEODE_SDK="$HOME/.geode/sdk"
-          $GITHUB_WORKSPACE/geode-bin/geode sdk install-binaries
-          
-          # DIAGNOSTIC COMMAND: Print the exact file tree to the logs
-          echo "=== SEARCHING FOR GEODECONFIG.CMAKE ==="
-          find $HOME/.geode -name "*GeodeConfig*" -o -name "*geode-config*" 2>/dev/null || true
-          echo "======================================="
 
-      - name: Configure CMake
+      - name: Build Mod with Geode CLI
         env:
           GEODE_SDK: /home/runner/.geode/sdk
         run: |
-          cmake -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DGEODE_TARGET=${{ matrix.config.target }} \
-            -DCMAKE_PREFIX_PATH="/home/runner/.geode/sdk" \
-            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake \
-            -DANDROID_ABI=${{ matrix.config.target == 'Android32' && 'armeabi-v7a' || 'arm64-v8a' }}
-
-      - name: Build Mod
-        env:
-          GEODE_SDK: /home/runner/.geode/sdk
-        run: cmake --build build --config Release
-        
+          # Use the CLI tool directly to build the mod for the target platform
+          geode mod build --target ${{ matrix.config.target }}
+          
