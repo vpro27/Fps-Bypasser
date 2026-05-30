@@ -22,9 +22,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Geode CLI & SDK
-        uses: geode-sdk/cli-setup@v2
+        uses: geode-sdk/cli-setup@main
         with:
-          # This installs the Geode SDK files so CMake can find "geodeConfig.cmake"
           sdk: true
 
       - name: Build Mod
