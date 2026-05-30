@@ -16,6 +16,13 @@ jobs:
 
       - name: Build Mod
         uses: geode-sdk/build-geode-mod@main
+        id: build
         with:
           target: Android
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-fps-mod
+          path: ${{ steps.build.outputs.build-output }}/*
           
