@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.25)
-project(fps_bypasser)
+project(fpsbypasser)
 
 find_package(geode REQUIRED)
 
-add_geode_mod(fps_bypasser
+add_geode_mod(com.developer.fpsbypasser
     VERSION 1.0.0
     ANDROID
 )
 
-target_sources(fps_bypasser PRIVATE main.cpp)
+target_sources(com.developer.fpsbypasser PRIVATE main.cpp)
